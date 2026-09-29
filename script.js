@@ -1,5 +1,6 @@
 // ===============================
 // NOORÉ — WEBSITE JAVASCRIPT
+// DEMO PRODUCT MANAGEMENT
 // ===============================
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -12,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const nav = document.getElementById("nav");
 
     if (menuBtn && nav) {
-
         menuBtn.addEventListener("click", () => {
 
             nav.classList.toggle("open");
@@ -28,7 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
         });
-
     }
 
 
@@ -62,15 +61,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const header = document.getElementById("header");
 
-    window.addEventListener("scroll", () => {
+    if (header) {
 
-        if (window.scrollY > 50) {
-            header.classList.add("scrolled");
-        } else {
-            header.classList.remove("scrolled");
-        }
+        window.addEventListener("scroll", () => {
 
-    });
+            if (window.scrollY > 50) {
+                header.classList.add("scrolled");
+            } else {
+                header.classList.remove("scrolled");
+            }
+
+        });
+
+    }
 
 
     // ===============================
@@ -113,8 +116,172 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     // ===============================
+    // LOAD DEMO PRODUCTS
+    // ===============================
+
+    loadDemoProducts();
+
+
+    // ===============================
     // PRODUCT FILTER
     // ===============================
+
+    setupProductFilters();
+
+
+    // ===============================
+    // QUICK VIEW
+    // ===============================
+
+    setupQuickView();
+
+
+    // ===============================
+    // CURRENT YEAR
+    // ===============================
+
+    const year = document.getElementById("year");
+
+    if (year) {
+        year.textContent = new Date().getFullYear();
+    }
+
+
+    // ===============================
+    // SMOOTH SCROLL
+    // ===============================
+
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+
+        anchor.addEventListener("click", function(event) {
+
+            const target = document.querySelector(
+                this.getAttribute("href")
+            );
+
+            if (target) {
+
+                event.preventDefault();
+
+                target.scrollIntoView({
+                    behavior: "smooth"
+                });
+
+            }
+
+        });
+
+    });
+
+
+    console.log(
+        "NOORÉ Demo Website Loaded Successfully."
+    );
+
+});
+
+
+// ==================================================
+// DEMO PRODUCTS FROM ADMIN PANEL
+// ==================================================
+
+function loadDemoProducts() {
+
+    const productGrid =
+        document.getElementById("productGrid");
+
+    if (!productGrid) return;
+
+
+    const savedProducts =
+        JSON.parse(
+            localStorage.getItem("nooreProducts")
+        ) || [];
+
+
+    savedProducts.forEach(product => {
+
+        const productCard =
+            document.createElement("article");
+
+        productCard.className = "product-card";
+
+        productCard.setAttribute(
+            "data-category",
+            product.category
+        );
+
+
+        productCard.innerHTML = `
+
+            <div class="product-image">
+
+                <span class="product-badge">
+                    NEW
+                </span>
+
+                <img
+                    src="${product.image}"
+                    alt="${product.name}"
+                    loading="lazy">
+
+                <button
+                    class="quick-view"
+                    data-product="${product.name}"
+                    data-price="${product.price}">
+
+                    <i class="fa-regular fa-eye"></i>
+                    Quick View
+
+                </button>
+
+            </div>
+
+
+            <div class="product-info">
+
+                <p class="product-category">
+                    ${product.category.toUpperCase()}
+                </p>
+
+                <h3>
+                    ${product.name}
+                </h3>
+
+                <div class="product-bottom">
+
+                    <strong>
+                        ${product.price}
+                    </strong>
+
+                    <a
+                        href="#contact"
+                        class="enquire-link">
+
+                        Enquire
+                        <i class="fa-solid fa-arrow-right"></i>
+
+                    </a>
+
+                </div>
+
+            </div>
+
+        `;
+
+
+        productGrid.appendChild(productCard);
+
+    });
+
+}
+
+
+// ==================================================
+// PRODUCT FILTER
+// ==================================================
+
+function setupProductFilters() {
 
     const filterButtons =
         document.querySelectorAll(".filter-btn");
@@ -122,57 +289,57 @@ document.addEventListener("DOMContentLoaded", () => {
     const products =
         document.querySelectorAll(".product-card");
 
+
     filterButtons.forEach(button => {
 
         button.addEventListener("click", () => {
 
-            // Remove active state
             filterButtons.forEach(btn => {
                 btn.classList.remove("active");
             });
 
-            // Add active state
             button.classList.add("active");
+
 
             const filter =
                 button.getAttribute("data-filter");
 
-            products.forEach(product => {
 
-                const category =
-                    product.getAttribute("data-category");
+            document
+                .querySelectorAll(".product-card")
+                .forEach(product => {
 
-                if (
-                    filter === "all" ||
-                    category === filter
-                ) {
+                    const category =
+                        product.getAttribute("data-category");
 
-                    product.style.display = "block";
 
-                    setTimeout(() => {
-                        product.style.opacity = "1";
-                    }, 50);
+                    if (
+                        filter === "all" ||
+                        category === filter
+                    ) {
 
-                } else {
+                        product.style.display = "block";
 
-                    product.style.opacity = "0";
+                    } else {
 
-                    setTimeout(() => {
                         product.style.display = "none";
-                    }, 200);
 
-                }
+                    }
 
-            });
+                });
 
         });
 
     });
 
+}
 
-    // ===============================
-    // PRODUCT QUICK VIEW MODAL
-    // ===============================
+
+// ==================================================
+// QUICK VIEW MODAL
+// ==================================================
+
+function setupQuickView() {
 
     const modal =
         document.getElementById("productModal");
@@ -186,35 +353,39 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalPrice =
         document.getElementById("modalPrice");
 
-    const quickViewButtons =
-        document.querySelectorAll(".quick-view");
+
+    if (!modal) return;
 
 
-    quickViewButtons.forEach(button => {
+    document
+        .querySelectorAll(".quick-view")
+        .forEach(button => {
 
-        button.addEventListener("click", () => {
+            button.addEventListener("click", () => {
 
-            const productName =
-                button.getAttribute("data-product");
+                const productName =
+                    button.getAttribute("data-product");
 
-            const productPrice =
-                button.getAttribute("data-price");
+                const productPrice =
+                    button.getAttribute("data-price");
 
-            modalProduct.textContent = productName;
-            modalPrice.textContent = productPrice;
 
-            modal.classList.add("show");
+                modalProduct.textContent =
+                    productName;
 
-            document.body.style.overflow = "hidden";
+                modalPrice.textContent =
+                    productPrice;
+
+
+                modal.classList.add("show");
+
+                document.body.style.overflow =
+                    "hidden";
+
+            });
 
         });
 
-    });
-
-
-    // ===============================
-    // CLOSE MODAL
-    // ===============================
 
     function closeModal() {
 
@@ -238,6 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const modalOverlay =
         document.querySelector(".modal-overlay");
 
+
     if (modalOverlay) {
 
         modalOverlay.addEventListener(
@@ -248,74 +420,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
 
-    // ===============================
-    // ESC KEY CLOSE MODAL
-    // ===============================
-
     document.addEventListener("keydown", event => {
 
         if (
             event.key === "Escape" &&
             modal.classList.contains("show")
         ) {
+
             closeModal();
+
         }
 
     });
 
-
-    // ===============================
-    // CURRENT YEAR
-    // ===============================
-
-    const year =
-        document.getElementById("year");
-
-    if (year) {
-        year.textContent =
-            new Date().getFullYear();
-    }
-
-
-    // ===============================
-    // SMOOTH SCROLL
-    // ===============================
-
-    document.querySelectorAll(
-        'a[href^="#"]'
-    ).forEach(anchor => {
-
-        anchor.addEventListener(
-            "click",
-            function(event) {
-
-                const target =
-                    document.querySelector(
-                        this.getAttribute("href")
-                    );
-
-                if (target) {
-
-                    event.preventDefault();
-
-                    target.scrollIntoView({
-                        behavior: "smooth"
-                    });
-
-                }
-
-            }
-        );
-
-    });
-
-
-    // ===============================
-    // PAGE LOADED
-    // ===============================
-
-    console.log(
-        "NOORÉ Boutique Website Loaded Successfully."
-    );
-
-});
+}
